@@ -83,8 +83,8 @@
     @if (column.cellRenderer) {
         <div [innerHTML]="column.cellRenderer(getCellEvent(item, column))"></div>
     } @else if (column.valueFormatter) {
-        {{column.valueFormatter(getCellEvent(item, column))}}
+        <span>{{column.valueFormatter(getCellEvent(item, column))}}</span>
     } @else {
-        {{item[column.field]}}
+        <span>{{item[column.field]}}</span>
     }
 </ng-template>

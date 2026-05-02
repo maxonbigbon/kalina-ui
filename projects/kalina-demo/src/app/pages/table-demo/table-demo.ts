@@ -37,9 +37,9 @@ export class TableDemoPage {
       field: 'status',
       name: 'Статус',
       minWidth: 130,
-      getCellClass: (e) => {
+      cellRenderer: (e) => {
         const s = String((e.item as any)?.status ?? '').toLowerCase();
-        return ['kn-badge', `kn-badge--${s || 'unknown'}`];
+        return `<span class="kn-badge kn-badge--${s || 'unknown'}">${(e.item as any)?.status === 'active' ? 'Active' : 'On leave'}</span>`;
       },
     },
   ];

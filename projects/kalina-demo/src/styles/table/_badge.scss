@@ -1,0 +1,21 @@
+.kn-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--kn-color-border);
+  background: var(--kn-color-surface-2);
+  color: var(--kn-color-text);
+  width: fit-content;
+}
+
+.kn-badge--active {
+  border-color: color-mix(in srgb, var(--kn-color-primary) 40%, var(--kn-color-border));
+  background: color-mix(in srgb, var(--kn-color-primary) 10%, var(--kn-color-surface-2));
+}
+
+.kn-badge--on_leave {
+  border-color: color-mix(in srgb, var(--kn-color-danger) 25%, var(--kn-color-border));
+  background: color-mix(in srgb, var(--kn-color-danger) 8%, var(--kn-color-surface-2));
+}

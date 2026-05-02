@@ -1,0 +1,17 @@
+.kn-table-demo__th {
+  user-select: none;
+}
+
+.kn-emp {
+  display: grid;
+  gap: 2px;
+}
+
+.kn-emp__name {
+  font-weight: var(--kn-font-weight-semibold);
+}
+
+.kn-emp__meta {
+  color: var(--kn-color-text-muted);
+  font-size: 12px;
+}
