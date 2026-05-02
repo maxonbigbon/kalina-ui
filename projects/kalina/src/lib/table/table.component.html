@@ -1,0 +1,90 @@
+@let columns = extendedColDefs;
+@let rows = currentData;
+<table class="kn-table"
+[ngClass]="tableClass()"
+[style.grid-template-columns]="gridTemplateColumnsStyle"
+[class.kn-table-fill]="layout() === 'fill'"
+>
+    <thead>
+        <tr>
+            @for (column of columns; track column.field) {
+                <th class="kn-table-cell-header"
+                [class.kn-table-cell-left]="column.position === 'left'"
+                [class.kn-table-cell-right]="column.position === 'right'"
+                [style.z-index]="!column.position ? 2 : null"
+                [ngClass]="column.headerCellClass"
+                (click)="onSort(column)"
+                >
+                    <span>
+                        {{column.name}}
+                    </span>
+                    @if (column.sortable) {
+                        <kn-sort-icon [direction]="getSortDirectionByColDef(column)"/>
+                    }
+                </th>
+            }
+        </tr>
+    </thead>
+    <tbody #tbody>
+        @for (row of rows; track rowIndex; let rowIndex = $index) {
+            <ng-container *ngTemplateOutlet="rowTemplate; context: { $implicit: row, level: 0, path: rowIndex }"/>
+        }
+    </tbody>
+</table>
+
+<ng-template #rowTemplate let-row let-level="level" let-path="path">
+    @let isExtandable = hasChildren(row);
+    @let isVisible = isVisibleRow(row);
+    <tr>
+        @for (column of columns; track colIndex; let colIndex = $index; let isFirst = $first) {
+            @let isExtandableStructure = isFirst && isExtandable;
+            <td class="kn-table-cell"
+            [attr.data-path]="path"
+            [attr.data-field]="column.field"
+            [class.kn-table-cell-left]="column.position === 'left'"
+            [class.kn-table-cell-right]="column.position === 'right'"
+            [class.kn-table-cell-extandable]="isExtandableStructure"
+            [ngClass]="getCellClass(row, column)"
+            [ngStyle]="getCellStyle(row, column)"
+            [style.padding-left.px]="isFirst && level ? (level * 20) + (isExtandable ? 0 : 20) : null"
+            >
+                @if (isExtandableStructure) {
+                    <button type="button"
+                    class="kn-table-chevron"
+                    (click)="toggleRow(row)"
+                    >
+                        @if (isVisible) {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M15.75 10C15.75 10.4142 15.4142 10.75 15 10.75H5C4.58579 10.75 4.25 10.4142 4.25
+                                10C4.25 9.58579 4.58579 9.25 5 9.25H15C15.4142 9.25 15.75 9.58579 15.75 10Z" fill="currentColor"/>
+                            </svg>
+                        } @else {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M9.25 15C9.25 15.4142 9.58579 15.75 10 15.75C10.4142 15.75 10.75 15.4142 10.75
+                                15V10.75H15C15.4142 10.75 15.75 10.4142 15.75 10C15.75 9.58579 15.4142 9.25 15 9.25H10.75V5C10.75 4.58579 10.4142 4.25 10 4.25C9.58579
+                                4.25 9.25 4.58579 9.25 5V9.25H5C4.58579 9.25 4.25 9.58579 4.25 10C4.25 10.4142 4.58579 10.75 5 10.75H9.25V15Z" fill="currentColor"/>
+                            </svg>
+                        }
+                    </button>  
+                }
+                <ng-container *ngTemplateOutlet="cellTemplate; context: { $implicit: row, column: column }"/>
+            </td>
+        }
+    </tr>
+    @if (isExtandable && isVisible) {
+        @for (row of row['children']; track row?.[optionKeyField()]; let rowIndex = $index) {
+            @let accPath = path + '/' + rowIndex;
+            <ng-container *ngTemplateOutlet="rowTemplate; context: { $implicit: row, level: level + 1, path: accPath }"/>
+        }
+    }
+</ng-template>
+
+<ng-template #cellTemplate let-item let-column="column">
+    @if (column.cellRenderer) {
+        <div [innerHTML]="column.cellRenderer(getCellEvent(item, column))"></div>
+    } @else if (column.valueFormatter) {
+        {{column.valueFormatter(getCellEvent(item, column))}}
+    } @else {
+        {{item[column.field]}}
+    }
+</ng-template>
