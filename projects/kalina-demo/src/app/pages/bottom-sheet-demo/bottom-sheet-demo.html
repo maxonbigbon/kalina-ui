@@ -1,0 +1,29 @@
+<section class="page">
+  <header class="page__header">
+    <h1 class="page__title">Bottom sheet</h1>
+    <p class="page__subtitle">Оверлей-панель снизу (как на смартфонах).</p>
+  </header>
+
+  <button type="button" class="demo-btn" (click)="openSheet()">Open</button>
+
+  @if (open()) {
+    <kn-bottom-sheet (dismiss)="open.set(false)">
+      <div class="sheet-body">
+        <p>Контент шторки. Закрывается по клику на backdrop. Высота меняется drag’ом.</p>
+        <label class="row">
+          <span>Status</span>
+          <select>
+            <option>active</option>
+            <option>on_leave</option>
+          </select>
+        </label>
+      </div>
+
+      <div knBottomSheetActions>
+        <button type="button" class="demo-btn" (click)="open.set(false)">Cancel</button>
+        <button type="button" class="demo-btn demo-btn--primary" (click)="open.set(false)">Apply</button>
+      </div>
+    </kn-bottom-sheet>
+  }
+</section>
+

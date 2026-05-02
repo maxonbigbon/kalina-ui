@@ -14,7 +14,7 @@ export class App {
 
   protected readonly nav = computed(() => [
     { label: 'Table', route: '/table' },
-    { label: 'Coming soon…', route: '/table' },
+    { label: 'Bottom sheet', route: '/bottom-sheet' },
   ]);
 
   constructor() {
