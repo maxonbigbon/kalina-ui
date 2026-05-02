@@ -1,9 +1,15 @@
 <section class="page">
   <header class="page__header">
     <h1 class="page__title">Table</h1>
-    <p class="page__subtitle">Standalone `kn-table` placeholder with theme tokens.</p>
   </header>
 
-  <kn-table [columns]="columns" [rows]="rows" />
+  <kn-table
+    [defaultColDef]="defaultColDef"
+    [colDefs]="colDefs"
+    [data]="data"
+    optionKeyField="id"
+    layout="fill"
+    tableClass="kn-table-demo"
+  />
 </section>
 

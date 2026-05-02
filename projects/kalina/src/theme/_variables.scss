@@ -1,0 +1,16 @@
+// Compatibility layer for component styles.
+// Allows `@use 'variables' as *;` when `styleIncludePaths` contains `src/theme`.
+
+@forward './abstracts/variables';
+@forward './abstracts/functions';
+@forward './abstracts/mixins';
+
+// Typography helpers used by components
+@mixin footnote {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+// Semantic tokens (kept as Sass vars for legacy component SCSS)
+$semantic-symbols-symbols-primary: var(--kn-color-text) !default;
+

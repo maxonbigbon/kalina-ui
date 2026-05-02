@@ -1,46 +1,5 @@
 @use 'variables' as *;
 
-.kn-table {
-  width: 100%;
-  border: 1px solid var(--kn-color-border);
-  border-radius: var(--kn-radius-lg);
-  overflow: hidden;
-  background: var(--kn-color-surface);
-  box-shadow: var(--kn-shadow-sm);
-}
-
-.kn-table__header,
-.kn-table__row {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 1fr;
-}
-
-.kn-table__header {
-  background: var(--kn-color-surface-2);
-  border-bottom: 1px solid var(--kn-color-border);
-}
-
-.kn-table__cell {
-  padding: var(--kn-space-3) var(--kn-space-4);
-  border-right: 1px solid var(--kn-color-border);
-  min-width: 0;
-}
-
-.kn-table__cell:last-child {
-  border-right: 0;
-}
-
-.kn-table__cell--head {
-  font-weight: var(--kn-font-weight-semibold);
-  color: var(--kn-color-text);
-}
-
-.kn-table__empty {
-  padding: var(--kn-space-4);
-  color: var(--kn-color-text-knted);
-}
-
 $cellPadding: 8px;
 $borderWidth: 1px;
 $borderColor: #f0f0f0;
@@ -69,7 +28,7 @@ table {
   display: grid;
   grid-template-columns: repeat(auto-fill, 100px);
   background: white;
-  border: $borderWidth solid $borderColor;
+  border: $borderWidth solid var(--kn-color-border);
   position: relative;
   &-fill {
     overflow: auto;
@@ -103,11 +62,11 @@ table {
         position: sticky;
         top: 0;
         z-index: 3;
-        border-right: $borderWidth solid $borderColor;
-        border-bottom: $borderWidth solid $borderColor;
+        border-right: $borderWidth solid var(--kn-color-border);
+        border-bottom: $borderWidth solid var(--kn-color-border);
         // условие рабочее если закреплять не больее одного столбца справа
         & + th.kn-table-cell-right {
-          border-left: $borderWidth solid $borderColor;
+          border-left: $borderWidth solid var(--kn-color-border);
         }
       }
       th:last-child {
@@ -123,14 +82,14 @@ table {
     tr {
       td {
         background: white;
-        border-right: $borderWidth solid $borderColor;
-        border-bottom: $borderWidth solid $borderColor;
+        border-right: $borderWidth solid var(--kn-color-border);
+        border-bottom: $borderWidth solid var(--kn-color-border);
         &:last-child {
           border-right-width: 0;
         }
         // условие рабочее если закреплять не больее одного столбца справа
         & + td.kn-table-cell-right {
-          border-left: $borderWidth solid $borderColor;
+          border-left: $borderWidth solid var(--kn-color-border);
         }
         &.kn-table-cell {
           .kn-table-chevron {
@@ -154,7 +113,7 @@ table {
           border-bottom-width: 0;
         }
       }
-      &::hover td {
+      &:hover td {
         background: $hoverCellBackground;
       }
       // условие убирает у предпоследней ячейки правую границу, нужно дорабатывать если закреплять больее одного столбца справа

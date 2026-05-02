@@ -3,5 +3,5 @@
  */
 
 export * from './lib/kalina';
-export * from './lib/table/table';
+export * from './lib/table';
 export * from './lib/theme/theme';
