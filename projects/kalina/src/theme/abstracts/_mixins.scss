@@ -1,0 +1,14 @@
+@use './functions' as fn;
+
+@mixin kn-emit-vars($tokens) {
+  @each $token, $value in $tokens {
+    #{fn.kn-var-name($token)}: #{$value};
+  }
+}
+
+@mixin kn-theme($tokens, $selector) {
+  #{$selector} {
+    @include kn-emit-vars($tokens);
+  }
+}
+

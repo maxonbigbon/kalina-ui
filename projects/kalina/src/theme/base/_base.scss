@@ -1,0 +1,26 @@
+@use '../abstracts/functions' as fn;
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: fn.kn-var('color-bg');
+  color: fn.kn-var('color-text');
+  font-family: fn.kn-var('font-family');
+  font-size: fn.kn-var('font-size');
+  line-height: fn.kn-var('line-height');
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+}
+

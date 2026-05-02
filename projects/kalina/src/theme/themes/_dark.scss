@@ -1,0 +1,38 @@
+$kn-theme-dark: (
+  // surfaces
+  'color-bg': #0d0f14,
+  'color-surface': #11141a,
+  'color-surface-2': #181c24,
+  'color-border': #2a3140,
+  // text
+  'color-text': #e8ebf2,
+  'color-text-muted': #a4adbd,
+  // accents
+  'color-primary': #78a2ff,
+  'color-primary-contrast': #0d0f14,
+  'color-danger': #ff6b6b,
+  'color-danger-contrast': #0d0f14,
+  // focus / states
+  'color-focus': rgba(120, 162, 255, 0.35),
+  // spacing
+  'space-1': 0.25rem,
+  'space-2': 0.5rem,
+  'space-3': 0.75rem,
+  'space-4': 1rem,
+  'space-6': 1.5rem,
+  // radius
+  'radius-sm': 0.25rem,
+  'radius-md': 0.5rem,
+  'radius-lg': 0.75rem,
+  // shadows
+  'shadow-sm': 0 1px 2px rgba(0, 0, 0, 0.35),
+  'shadow-md': 0 10px 30px rgba(0, 0, 0, 0.55),
+  // typography
+  'font-family': "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Liberation Sans', sans-serif",
+  'font-size': 14px,
+  'line-height': 1.45,
+  'font-weight-regular': 400,
+  'font-weight-medium': 500,
+  'font-weight-semibold': 600
+);
+

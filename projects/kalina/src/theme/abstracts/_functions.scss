@@ -1,0 +1,10 @@
+$kn-css-var-prefix: 'kn' !default;
+
+@function kn-var-name($token) {
+  @return '--#{$kn-css-var-prefix}-#{$token}';
+}
+
+@function kn-var($token) {
+  @return var(#{kn-var-name($token)});
+}
+

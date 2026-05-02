@@ -1,0 +1,121 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "packageManager": "npm",
+    "analytics": "cb3db89e-7eed-4938-be9c-85bf5623e3dd"
+  },
+  "schematics": {
+    "@schematics/angular:component": {
+      "prefix": "kn",
+      "style": "scss",
+      "standalone": true
+    },
+    "@schematics/angular:directive": {
+      "prefix": "kn",
+      "standalone": true
+    },
+    "@schematics/angular:pipe": {
+      "standalone": true
+    }
+  },
+  "newProjectRoot": "projects",
+  "projects": {
+    "kalina": {
+      "projectType": "library",
+      "root": "projects/kalina",
+      "sourceRoot": "projects/kalina/src",
+      "prefix": "kn",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/kalina/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/kalina/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/kalina/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "kalina-demo": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "prefix": "kn",
+          "style": "scss"
+        }
+      },
+      "root": "projects/kalina-demo",
+      "sourceRoot": "projects/kalina-demo/src",
+      "prefix": "kn",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "projects/kalina-demo/src/main.ts",
+            "tsConfig": "projects/kalina-demo/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "stylePreprocessorOptions": {
+              "includePaths": ["projects/kalina/src/theme", "projects/kalina-demo/src"]
+            },
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "projects/kalina-demo/public"
+              }
+            ],
+            "styles": ["projects/kalina-demo/src/styles.scss"]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "kalina-demo:build:production"
+            },
+            "development": {
+              "buildTarget": "kalina-demo:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test"
+        }
+      }
+    }
+  }
+}

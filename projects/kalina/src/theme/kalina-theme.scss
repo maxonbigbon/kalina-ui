@@ -1,0 +1,12 @@
+@use './abstracts/mixins' as m;
+@use './themes/light' as light;
+@use './themes/dark' as dark;
+@use './base/base';
+
+// Default selectors for runtime switching
+@include m.kn-theme(light.$kn-theme-light, ":root[data-kn-theme='light']");
+@include m.kn-theme(dark.$kn-theme-dark, ":root[data-kn-theme='dark']");
+
+// Sensible default if attribute is missing
+@include m.kn-theme(light.$kn-theme-light, ':root:not([data-kn-theme])');
+
