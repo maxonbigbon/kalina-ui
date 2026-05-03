@@ -1,28 +1,36 @@
-@if (currentHeight > 0) {
-  <div class="kn-bottom-sheet__backdrop cdk-drag-boundary" (click)="close()">
-    <section
-      class="kn-bottom-sheet__panel"
-      role="dialog"
-      aria-modal="true"
-      #sheetContainer
-      cdkDrag
-      cdkDragLockAxis="y"
-      cdkDragBoundary=".cdk-drag-boundary"
-      (cdkDragMoved)="onDragMoved($event)"
-      (cdkDragEnded)="onDragEnded($event)"
-      (click)="$event.stopPropagation()"
-    >
-      <header class="kn-bottom-sheet__header" cdkDragHandle>
-        <div class="kn-bottom-sheet__grabber" aria-hidden="true"></div>
-        <button type="button" class="kn-bottom-sheet__close" (click)="close()" aria-label="Close">
-          ✕
-        </button>
-      </header>
-
-      <div class="kn-bottom-sheet__content">
-        <ng-content />
-      </div>
-    </section>
-  </div>
+@if(showOverlay && isOpen()) {
+  <div class="bottom-sheet-overlay" (click)="close()"></div>
 }
+
+<div class="bottom-sheet" 
+     #sheet
+     [class.open]="isOpen()"
+     (touchstart)="onTouchStart($event)"
+     (touchmove)="onTouchMove($event)"
+     (touchend)="onTouchEnd()"
+     (mousedown)="onMouseDown($event)"
+     (mousemove)="onMouseMove($event)"
+     (mouseup)="onMouseUp()"
+     (mouseleave)="onMouseUp()">
+
+  <!-- Handle -->
+  <div class="sheet-handle" (mousedown)="onMouseDown($event)">
+    <div class="handle-bar"></div>
+  </div>
+
+  <!-- Header -->
+  <div class="sheet-header">
+    <ng-content select="[header]"></ng-content>
+  </div>
+
+  <!-- Content -->
+  <div class="sheet-content" #content>
+    <ng-content></ng-content>
+  </div>
+
+  <!-- Footer -->
+  <div class="sheet-footer">
+    <ng-content select="[footer]"></ng-content>
+  </div>
+</div>
 

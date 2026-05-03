@@ -35,9 +35,27 @@
   background: color-mix(in srgb, var(--kn-color-primary) 12%, var(--kn-color-surface-2));
 }
 
+.sheet-header-demo {
+  padding-bottom: var(--kn-space-2);
+}
+
+.sheet-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: var(--kn-font-weight-semibold);
+}
+
 .sheet-body {
   display: grid;
   gap: var(--kn-space-3);
+}
+
+.sheet-footer-demo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--kn-space-2);
+  justify-content: flex-end;
+  padding-top: var(--kn-space-3);
 }
 
 .row {

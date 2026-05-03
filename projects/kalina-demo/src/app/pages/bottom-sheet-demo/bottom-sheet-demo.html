@@ -8,6 +8,10 @@
 
   @if (open()) {
     <kn-bottom-sheet (dismiss)="open.set(false)">
+      <div header class="sheet-header-demo">
+        <h2 class="sheet-title">Пример</h2>
+      </div>
+
       <div class="sheet-body">
         <p>Контент шторки. Закрывается по клику на backdrop. Высота меняется drag’ом.</p>
         <label class="row">
@@ -19,7 +23,7 @@
         </label>
       </div>
 
-      <div knBottomSheetActions>
+      <div footer class="sheet-footer-demo">
         <button type="button" class="demo-btn" (click)="open.set(false)">Cancel</button>
         <button type="button" class="demo-btn demo-btn--primary" (click)="open.set(false)">Apply</button>
       </div>
