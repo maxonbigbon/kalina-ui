@@ -1,30 +1,42 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, inject, Input, Output, signal, ViewChild } from '@angular/core';
+import { OnInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, inject, Input, OnDestroy, Output, signal, ViewChild, TemplateRef, ViewContainerRef, SimpleChanges, OnChanges } from '@angular/core';
+import { TemplatePortal } from '@angular/cdk/portal';
+import { NgTemplateOutlet } from '@angular/common';
+
+import { KnBottomSheetService } from '../../services/bottom-sheet.service';
+import { KnBottomSheetRef } from '../../common/bottom-sheet-ref';
 
 @Component({
   selector: 'kn-bottom-sheet',
-  imports: [],
+  imports: [NgTemplateOutlet],
   templateUrl: './bottom-sheet.component.html',
   styleUrl: './bottom-sheet.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class KnBottomSheetComponent implements AfterViewInit {
-  private el = inject(ElementRef);
-
+export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges {
+  private service = inject(KnBottomSheetService);
+  private viewContainerRef = inject(ViewContainerRef);
+  
   // Входные параметры
-  @Input() minHeight = 120;
+  @Input() id!: string;
+  @Input() hasBackdrop = true;
+  @Input() hasHandleIcon = true;
+  @Input() hasCloseIcon = true;
+  @Input() backdropClass = '';
+  @Input() panelClass = '';
+  @Input() data: any = null;
   @Input() defaultHeight = 400;
+  @Input() minHeight = 120;
   @Input() maxHeight = 0; // 0 = auto (viewport - offset)
-  @Input() showOverlay = true;
-  @Input() showHandle = true;
-
+  @Input() isOpen = false;
+  
+  
   // Выходные события
-  @Output() dismiss = new EventEmitter<void>();
   @Output() heightChange = new EventEmitter<number>();
-
+  @Output() isOpenChange = new EventEmitter<boolean>();
+  @Output() closed = new EventEmitter<any>();
+  
+  @ViewChild('contentTemplate', { static: true }) contentTemplate!: TemplateRef<any>;
   @ViewChild('sheet') sheetRef!: ElementRef<HTMLDivElement>;
-  @ViewChild('content') contentRef!: ElementRef<HTMLDivElement>;
-
-  isOpen = signal(true);
   currentHeight = signal(0);
 
   private startY = 0;
@@ -35,9 +47,56 @@ export class KnBottomSheetComponent implements AfterViewInit {
   private lastY = 0;
   private lastTime = 0;
 
-  ngAfterViewInit() {
-    this.currentHeight.set(this.defaultHeight);
-    this.applyHeight(this.defaultHeight);
+  private currentRef: KnBottomSheetRef | null = null;
+  private portal!: TemplatePortal<any>;
+
+  ngOnInit(): void {
+    if (!this.id) {
+      console.warn('[kn-bottom-sheet] Attribute [id] is requred');
+    }
+    // Создаём портал один раз
+    this.portal = new TemplatePortal(this.contentTemplate, this.viewContainerRef);
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['isOpen']) {
+      if (this.isOpen && !this.currentRef) {
+        this.open();
+      } else if (!this.isOpen && this.currentRef) {
+        this.currentRef.close();
+      }
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.rafId) cancelAnimationFrame(this.rafId);
+    this.close();
+  }
+
+  public open() {
+    if (!this.portal) return;
+
+    this.currentRef = this.service.open(this.portal as unknown as TemplateRef<any>, {
+      id: this.id,
+      hasBackdrop: this.hasBackdrop,
+      backdropClass: this.backdropClass,
+      panelClass: this.panelClass,
+      data: this.data,
+      defaultHeight: this.defaultHeight,
+      minHeight: this.minHeight,
+      maxHeight: this.maxHeight,
+    });
+
+    this.currentRef.afterClosed$.subscribe((result) => {
+      this.isOpen = false;
+      this.isOpenChange.emit(false);
+      this.closed.emit(result);
+      this.currentRef = null;
+    });
+  }
+
+  public close(): void {
+    this.currentRef?.close();
   }
 
   private applyHeight(height: number) {
@@ -148,15 +207,6 @@ export class KnBottomSheetComponent implements AfterViewInit {
     };
 
     requestAnimationFrame(animate);
-  }
-
-  close() {
-    this.isOpen.set(false);
-    this.dismiss.emit();
-  }
-
-  ngOnDestroy() {
-    if (this.rafId) cancelAnimationFrame(this.rafId);
   }
 }
 

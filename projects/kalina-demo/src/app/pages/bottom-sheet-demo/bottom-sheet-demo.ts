@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { KnBottomSheetComponent } from 'kalina';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { KnBottomSheetComponent, KnBottomSheetService } from 'kalina';
+import { KnBottomSheetDemoComponet } from './components/bottom-sheet/bottom-sheet.component';
 
 @Component({
   selector: 'kn-bottom-sheet-demo-page',
@@ -9,10 +10,12 @@ import { KnBottomSheetComponent } from 'kalina';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BottomSheetDemoPage {
+  private bottomSheetService = inject(KnBottomSheetService);
   protected readonly open = signal(false);
 
   protected openSheet(): void {
     this.open.set(true);
+    this.bottomSheetService.open(KnBottomSheetDemoComponet);
   }
 }
 
