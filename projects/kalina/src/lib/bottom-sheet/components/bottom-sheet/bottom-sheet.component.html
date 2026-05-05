@@ -8,12 +8,27 @@
       (mousedown)="onMouseDown($event)"
       >
 
-    <!-- Handle -->
-    @if(hasHandleIcon) {
-      <div class="sheet-handle" (mousedown)="onMouseDown($event)">
-        <div class="handle-bar"></div>
-      </div>
-    }
+    <!-- Top bar: handle + close (independent) -->
+    <div class="sheet-topbar">
+      @if (hasHandleIcon) {
+        <div class="sheet-handle" (mousedown)="onMouseDown($event)">
+          <div class="handle-bar"></div>
+        </div>
+      }
+
+      @if (hasCloseIcon) {
+        <button
+          type="button"
+          class="sheet-close"
+          aria-label="Close"
+          (click)="close()"
+          (mousedown)="$event.stopPropagation(); $event.preventDefault()"
+          (touchstart)="$event.stopPropagation(); $event.preventDefault()"
+        >
+          <span aria-hidden="true">×</span>{{id}}
+        </button>
+      }
+    </div>
 
     <!-- Header -->
     <div class="sheet-header">

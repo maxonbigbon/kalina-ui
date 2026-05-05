@@ -5,6 +5,7 @@ import { KnBottomSheetComponent } from 'kalina';
   selector: 'kn-bottom-sheet-demo',
   imports: [KnBottomSheetComponent],
   templateUrl: './bottom-sheet.component.html',
+  styleUrl: './bottom-sheet.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class KnBottomSheetDemoComponet {

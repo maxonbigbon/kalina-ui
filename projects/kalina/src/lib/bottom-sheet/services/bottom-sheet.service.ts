@@ -43,12 +43,12 @@ export class KnBottomSheetService {
     // Передаём props в компонент
     if (componentRef.instance) {
       componentRef.instance.id = id;
-      componentRef.instance.hasHandleIcon = config.hasHandleIcon || true;
-      componentRef.instance.hasCloseIcon = config.hasCloseIcon || true;
+      componentRef.instance.hasHandleIcon = config.hasHandleIcon;
+      componentRef.instance.hasCloseIcon = config.hasCloseIcon;
       componentRef.instance.data = config.data;
-      componentRef.instance.defaultHeight = config.defaultHeight || 400;
-      componentRef.instance.minHeight = config.minHeight || 120;
-      componentRef.instance.maxHeight = config.maxHeight || 0; // 0 = auto (viewport - offset)
+      componentRef.instance.defaultHeight = config.defaultHeight;
+      componentRef.instance.minHeight = config.minHeight;
+      componentRef.instance.maxHeight = config.maxHeight;
       componentRef.changeDetectorRef.detectChanges();
     }
 

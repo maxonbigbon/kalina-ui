@@ -12,7 +12,7 @@ import { KnBottomSheetRef } from '../../common/bottom-sheet-ref';
   styleUrl: './bottom-sheet.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges {
+export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   private service = inject(KnBottomSheetService);
   private viewContainerRef = inject(ViewContainerRef);
   
@@ -24,9 +24,9 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges {
   @Input() backdropClass = '';
   @Input() panelClass = '';
   @Input() data: any = null;
-  @Input() defaultHeight = 400;
-  @Input() minHeight = 120;
-  @Input() maxHeight = 0; // 0 = auto (viewport - offset)
+  @Input() defaultHeight = 0;
+  @Input() minHeight = 0;
+  @Input() maxHeight = window.innerHeight * 0.9;
   @Input() isOpen = false;
   
   
@@ -54,17 +54,14 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges {
   private portal!: TemplatePortal<any>;
 
   ngOnInit(): void {
-    if (!this.id) {
-      console.warn('[kn-bottom-sheet] Attribute [id] is requred');
-    }
     // Создаём портал один раз
     this.portal = new TemplatePortal(this.contentTemplate, this.viewContainerRef);
   }
 
   ngAfterViewInit(): void {
     // Начальная высота, чтобы первый drag не "прыгал" с 0
-    const initial = this.clampHeight(this.defaultHeight);
-    this.applyHeight(initial);
+    this.defaultHeight = this.defaultHeight || this.sheetRef.nativeElement.clientHeight;
+    this.applyHeight(this.defaultHeight);
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -106,7 +103,12 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   public close(): void {
-    this.currentRef?.close();
+    console.log(this.id)
+    if (this.currentRef) {
+      this.currentRef?.close();
+    } else {
+      this.service.close(this.id);
+    }
   }
 
   // ==================== DRAG LOGIC ====================
@@ -140,12 +142,13 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges {
     this.detachGlobalDragListeners();
 
     const current = this.currentHeight();
-    const max = this.getMaxHeight();
+    const max = this.maxHeight;
 
     // Логика snap + dismiss
     // Быстрый свайп вниз или сильное уменьшение -> закрыть (как onDismiss в референсе)
-    const dismissVelocity = 0.5; // px/ms
-    if (current < this.minHeight * 1.2 && (this.velocityY > dismissVelocity || !this.hasDragged)) {
+    const dismissVelocity = 0.3; // px/ms
+    console.log(this.velocityY, dismissVelocity);
+    if (current < this.minHeight * 1.2 || (this.velocityY > dismissVelocity || !this.hasDragged)) {
       this.close();
       return;
     }
@@ -224,13 +227,8 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges {
     this.heightChange.emit(clamped);
   }
 
-  private getMaxHeight(): number {
-    return this.maxHeight || window.innerHeight * 0.9;
-  }
-
   private clampHeight(height: number): number {
-    const max = this.getMaxHeight();
-    return Math.max(this.minHeight, Math.min(max, height));
+    return Math.max(this.minHeight, Math.min(this.maxHeight, height));
   }
 
   private isTargetInsideContent(target: EventTarget | null): boolean {
