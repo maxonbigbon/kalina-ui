@@ -99,25 +99,29 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges {
     this.currentRef?.close();
   }
 
-  private applyHeight(height: number) {
-    const sheet = this.sheetRef.nativeElement;
-    const max = this.maxHeight || window.innerHeight * 0.9;
-    const clamped = Math.max(this.minHeight, Math.min(max, height));
-    
-    sheet.style.height = `${clamped}px`;
-    this.currentHeight.set(clamped);
-    this.heightChange.emit(clamped);
-  }
-
   // ==================== DRAG LOGIC ====================
 
-  onTouchStart(e: TouchEvent) {
+  public onTouchStart(e: TouchEvent) {
     this.startDrag(e.touches[0].pageY);
   }
 
-  onMouseDown(e: MouseEvent) {
+  public onMouseDown(e: MouseEvent) {
     this.startDrag(e.pageY);
   }
+
+  public onTouchMove(e: TouchEvent) {
+    if (!this.isDragging) return;
+    e.preventDefault();
+    this.handleMove(e.touches[0].pageY);
+  }
+
+  public onMouseMove(e: MouseEvent) {
+    if (!this.isDragging) return;
+    this.handleMove(e.pageY);
+  }
+
+  public onTouchEnd = () => this.endDrag();
+  public onMouseUp = () => this.endDrag();
 
   private startDrag(pageY: number) {
     this.isDragging = true;
@@ -127,37 +131,6 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges {
     this.lastTime = Date.now();
     this.velocity = 0;
   }
-
-  onTouchMove(e: TouchEvent) {
-    if (!this.isDragging) return;
-    e.preventDefault();
-    this.handleMove(e.touches[0].pageY);
-  }
-
-  onMouseMove(e: MouseEvent) {
-    if (!this.isDragging) return;
-    this.handleMove(e.pageY);
-  }
-
-  private handleMove(pageY: number) {
-    const delta = pageY - this.startY;
-    let newHeight = this.startHeight - delta;
-
-    // Простая velocity для инерции
-    const now = Date.now();
-    this.velocity = (pageY - this.lastY) / (now - this.lastTime + 1);
-    this.lastY = pageY;
-    this.lastTime = now;
-
-    if (this.rafId) cancelAnimationFrame(this.rafId);
-
-    this.rafId = requestAnimationFrame(() => {
-      this.applyHeight(newHeight);
-    });
-  }
-
-  onTouchEnd = () => this.endDrag();
-  onMouseUp = () => this.endDrag();
 
   private endDrag() {
     if (!this.isDragging) return;
@@ -186,6 +159,23 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges {
     this.animateToHeight(targetHeight);
   }
 
+  private handleMove(pageY: number) {
+    const delta = pageY - this.startY;
+    let newHeight = this.startHeight - delta;
+
+    // Простая velocity для инерции
+    const now = Date.now();
+    this.velocity = (pageY - this.lastY) / (now - this.lastTime + 1);
+    this.lastY = pageY;
+    this.lastTime = now;
+
+    if (this.rafId) cancelAnimationFrame(this.rafId);
+
+    this.rafId = requestAnimationFrame(() => {
+      this.applyHeight(newHeight);
+    });
+  }
+
   private animateToHeight(target: number) {
     const start = this.currentHeight();
     const duration = 280;
@@ -207,6 +197,16 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges {
     };
 
     requestAnimationFrame(animate);
+  }
+
+  private applyHeight(height: number) {
+    const sheet = this.sheetRef.nativeElement;
+    const max = this.maxHeight || window.innerHeight * 0.9;
+    const clamped = Math.max(this.minHeight, Math.min(max, height));
+    
+    sheet.style.height = `${clamped}px`;
+    this.currentHeight.set(clamped);
+    this.heightChange.emit(clamped);
   }
 }
 
