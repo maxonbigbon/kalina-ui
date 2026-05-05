@@ -1,4 +1,4 @@
-import { OnInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, inject, Input, OnDestroy, Output, signal, ViewChild, TemplateRef, ViewContainerRef, SimpleChanges, OnChanges } from '@angular/core';
+import { OnInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, inject, Input, OnDestroy, Output, signal, ViewChild, TemplateRef, ViewContainerRef, SimpleChanges, OnChanges, AfterViewInit } from '@angular/core';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { NgTemplateOutlet } from '@angular/common';
 
@@ -37,15 +37,18 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges {
   
   @ViewChild('contentTemplate', { static: true }) contentTemplate!: TemplateRef<any>;
   @ViewChild('sheet') sheetRef!: ElementRef<HTMLDivElement>;
+  @ViewChild('content') contentRef!: ElementRef<HTMLDivElement>;
   currentHeight = signal(0);
 
   private startY = 0;
   private startHeight = 0;
   private isDragging = false;
   private rafId: number | null = null;
-  private velocity = 0;
   private lastY = 0;
   private lastTime = 0;
+  private velocityY = 0; // px/ms, + вниз, - вверх
+  private hasDragged = false; // аналог w.current из референса
+  private startedFromContent = false;
 
   private currentRef: KnBottomSheetRef | null = null;
   private portal!: TemplatePortal<any>;
@@ -56,6 +59,12 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges {
     }
     // Создаём портал один раз
     this.portal = new TemplatePortal(this.contentTemplate, this.viewContainerRef);
+  }
+
+  ngAfterViewInit(): void {
+    // Начальная высота, чтобы первый drag не "прыгал" с 0
+    const initial = this.clampHeight(this.defaultHeight);
+    this.applyHeight(initial);
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -70,6 +79,7 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnDestroy() {
     if (this.rafId) cancelAnimationFrame(this.rafId);
+    this.detachGlobalDragListeners();
     this.close();
   }
 
@@ -102,45 +112,40 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges {
   // ==================== DRAG LOGIC ====================
 
   public onTouchStart(e: TouchEvent) {
-    this.startDrag(e.touches[0].pageY);
+    if (e.touches.length !== 1) return;
+    this.startDrag(e.touches[0].pageY, e.target);
   }
 
   public onMouseDown(e: MouseEvent) {
-    this.startDrag(e.pageY);
+    if (e.button !== 0) return;
+    this.startDrag(e.pageY, e.target);
   }
 
-  public onTouchMove(e: TouchEvent) {
-    if (!this.isDragging) return;
-    e.preventDefault();
-    this.handleMove(e.touches[0].pageY);
-  }
-
-  public onMouseMove(e: MouseEvent) {
-    if (!this.isDragging) return;
-    this.handleMove(e.pageY);
-  }
-
-  public onTouchEnd = () => this.endDrag();
-  public onMouseUp = () => this.endDrag();
-
-  private startDrag(pageY: number) {
+  private startDrag(pageY: number, target: EventTarget | null) {
+    if (!this.sheetRef?.nativeElement) return;
     this.isDragging = true;
     this.startY = pageY;
     this.startHeight = this.currentHeight();
     this.lastY = pageY;
     this.lastTime = Date.now();
-    this.velocity = 0;
+    this.velocityY = 0;
+    this.hasDragged = false;
+    this.startedFromContent = this.isTargetInsideContent(target);
+    this.attachGlobalDragListeners();
   }
 
   private endDrag() {
     if (!this.isDragging) return;
     this.isDragging = false;
+    this.detachGlobalDragListeners();
 
     const current = this.currentHeight();
-    const max = this.maxHeight || window.innerHeight * 0.9;
+    const max = this.getMaxHeight();
 
     // Логика snap + dismiss
-    if (current < this.minHeight * 1.5 && this.velocity < -0.5) {
+    // Быстрый свайп вниз или сильное уменьшение -> закрыть (как onDismiss в референсе)
+    const dismissVelocity = 0.5; // px/ms
+    if (current < this.minHeight * 1.2 && (this.velocityY > dismissVelocity || !this.hasDragged)) {
       this.close();
       return;
     }
@@ -153,19 +158,30 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges {
       targetHeight = this.defaultHeight; // среднее положение
     } else {
       targetHeight = this.minHeight;    // минимальное
-      if (current < this.minHeight * 1.2) this.close();
     }
 
     this.animateToHeight(targetHeight);
   }
 
   private handleMove(pageY: number) {
-    const delta = pageY - this.startY;
-    let newHeight = this.startHeight - delta;
+    const deltaY = pageY - this.startY;
+    if (!this.hasDragged) {
+      // порог начала как в референсе: сначала отличаем "tap" от drag
+      this.hasDragged = Math.abs(deltaY) > 1;
+      if (!this.hasDragged) return;
+    }
 
-    // Простая velocity для инерции
+    // Если жест начался внутри контента и контент проскроллен, не перетаскиваем шторку вниз
+    // пока пользователь не доскроллит до верха (поведение как isContentScrolledRef в референсе).
+    if (this.startedFromContent && this.isContentScrolled() && deltaY > 0) {
+      return;
+    }
+
+    const newHeight = this.startHeight - deltaY;
+
+    // velocity по Y (px/ms), + вниз, - вверх
     const now = Date.now();
-    this.velocity = (pageY - this.lastY) / (now - this.lastTime + 1);
+    this.velocityY = (pageY - this.lastY) / (now - this.lastTime + 1);
     this.lastY = pageY;
     this.lastTime = now;
 
@@ -201,12 +217,66 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges {
 
   private applyHeight(height: number) {
     const sheet = this.sheetRef.nativeElement;
-    const max = this.maxHeight || window.innerHeight * 0.9;
-    const clamped = Math.max(this.minHeight, Math.min(max, height));
+    const clamped = this.clampHeight(height);
     
     sheet.style.height = `${clamped}px`;
     this.currentHeight.set(clamped);
     this.heightChange.emit(clamped);
+  }
+
+  private getMaxHeight(): number {
+    return this.maxHeight || window.innerHeight * 0.9;
+  }
+
+  private clampHeight(height: number): number {
+    const max = this.getMaxHeight();
+    return Math.max(this.minHeight, Math.min(max, height));
+  }
+
+  private isTargetInsideContent(target: EventTarget | null): boolean {
+    const el = target as Node | null;
+    const content = this.contentRef?.nativeElement;
+    if (!el || !content) return false;
+    return content.contains(el);
+  }
+
+  private isContentScrolled(): boolean {
+    const content = this.contentRef?.nativeElement;
+    return !!content && content.scrollTop > 0;
+  }
+
+  // Глобальные слушатели, чтобы drag не обрывался при уходе курсора/пальца за пределы sheet
+  private boundOnMouseMove = (e: MouseEvent) => {
+    if (!this.isDragging) return;
+    this.handleMove(e.pageY);
+  };
+
+  private boundOnMouseUp = () => this.endDrag();
+
+  private boundOnTouchMove = (e: TouchEvent) => {
+    if (!this.isDragging) return;
+    if (e.touches.length !== 1) return;
+    // критично: passive:false, иначе preventDefault игнорируется и страница/контент может скроллиться
+    e.preventDefault();
+    this.handleMove(e.touches[0].pageY);
+  };
+
+  private boundOnTouchEnd = () => this.endDrag();
+
+  private attachGlobalDragListeners() {
+    window.addEventListener('mousemove', this.boundOnMouseMove);
+    window.addEventListener('mouseup', this.boundOnMouseUp, { once: true });
+    window.addEventListener('touchmove', this.boundOnTouchMove, { passive: false });
+    window.addEventListener('touchend', this.boundOnTouchEnd, { once: true });
+    window.addEventListener('touchcancel', this.boundOnTouchEnd, { once: true });
+  }
+
+  private detachGlobalDragListeners() {
+    window.removeEventListener('mousemove', this.boundOnMouseMove);
+    window.removeEventListener('mouseup', this.boundOnMouseUp);
+    window.removeEventListener('touchmove', this.boundOnTouchMove);
+    window.removeEventListener('touchend', this.boundOnTouchEnd);
+    window.removeEventListener('touchcancel', this.boundOnTouchEnd);
   }
 }
 

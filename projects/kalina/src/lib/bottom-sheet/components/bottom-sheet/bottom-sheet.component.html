@@ -5,12 +5,8 @@
   <div class="bottom-sheet" 
       #sheet
       (touchstart)="onTouchStart($event)"
-      (touchmove)="onTouchMove($event)"
-      (touchend)="onTouchEnd()"
       (mousedown)="onMouseDown($event)"
-      (mousemove)="onMouseMove($event)"
-      (mouseup)="onMouseUp()"
-      (mouseleave)="onMouseUp()">
+      >
 
     <!-- Handle -->
     @if(hasHandleIcon) {
@@ -25,7 +21,7 @@
     </div>
 
     <!-- Content -->
-    <div class="sheet-content">
+    <div class="sheet-content" #content>
       <ng-content></ng-content>
     </div>
 
