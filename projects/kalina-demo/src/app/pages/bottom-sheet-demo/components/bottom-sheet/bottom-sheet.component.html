@@ -1,10 +1,11 @@
-<kn-bottom-sheet>
+<kn-bottom-sheet #bottomSheet>
     <div header class="sheet-header-demo">
       <h2 class="sheet-title">Пример</h2>
       <p class="sheet-subtitle">Демо со скроллом внутри контента.</p>
     </div>
 
     <div class="sheet-body sheet-body--text">
+      {{bottomSheet.knData}}
       <p>
         Длинный текст, чтобы гарантировать скролл. Можно тянуть шторку за хэндл, а контент — скроллить.
         Если контент проскроллен вниз, drag вниз с области контента должен сначала вернуть скролл к верху.

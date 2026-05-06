@@ -1,56 +1,60 @@
 import { ComponentType, Overlay } from "@angular/cdk/overlay";
-import { ComponentRef, inject, Injectable, TemplateRef } from "@angular/core";
+import { Injector, inject, Injectable } from "@angular/core";
 import { ComponentPortal, TemplatePortal } from "@angular/cdk/portal";
 
-import { KnBottomSheetConfig } from "../types";
+import { KN_BOTTOM_SHEET_DEFAULT_CONFIG, KN_BOTTOM_SHEET_OUTSIDE_CONTEXT, KnBottomSheetConfig, KnBottomSheetDefaultConfig } from "../types";
 import { KnBottomSheetRef } from "../common/bottom-sheet-ref";
 
 @Injectable({ providedIn: 'root' })
 export class KnBottomSheetService {
   private overlay = inject(Overlay);
+  private injector = inject(Injector);
   private activeRefs = new Map<string, KnBottomSheetRef>();
+  private defaultConfig = inject(KN_BOTTOM_SHEET_DEFAULT_CONFIG, { optional: true });
 
   open<T = any>(
-    componentOrTemplate: ComponentType<T> | TemplateRef<any>,
-    config: KnBottomSheetConfig = {}
+    componentOrTemplate: ComponentType<T> | TemplatePortal<any>,
+    config: KnBottomSheetConfig = {},
   ): KnBottomSheetRef {
-    const id = config.id || `sheet_${Date.now()}`;
+    const mergedConfig: Partial<KnBottomSheetDefaultConfig> & KnBottomSheetConfig = {
+      ...(this.defaultConfig ?? {}),
+      ...config,
+    };
+
+    const id = mergedConfig.id || `sheet_${Date.now()}`;
 
     // Если уже открыт — закрываем
     this.close(id);
 
     const overlayRef = this.overlay.create({
-      hasBackdrop: config.hasBackdrop,
-      backdropClass: ['kn-bottom-sheet-backdrop', config.backdropClass || ''],
-      panelClass: ['kn-bottom-sheet-panel', config.panelClass || ''],
+      hasBackdrop: mergedConfig.hasBackdrop,
+      backdropClass: ['kn-bottom-sheet-backdrop', mergedConfig.backdropClass || ''],
+      panelClass: ['kn-bottom-sheet-panel', mergedConfig.panelClass || ''],
       positionStrategy: this.overlay.position().global().centerHorizontally().bottom('0'),
       scrollStrategy: this.overlay.scrollStrategies.block(),
       disposeOnNavigation: true,
     });
 
-    let componentRef: ComponentRef<any>;
-
-    if (componentOrTemplate instanceof TemplateRef || componentOrTemplate instanceof TemplatePortal) {
-      componentRef = overlayRef.attach(componentOrTemplate);
+    if (componentOrTemplate instanceof TemplatePortal) {
+      overlayRef.attach(componentOrTemplate);
+      // при открытии из компонента, props не прокидываем, т.к. они уже в @Input
     } else {
-      const portal = new ComponentPortal(componentOrTemplate);
-      componentRef = overlayRef.attach(portal);
+      const customInjector = Injector.create({
+        providers: [
+          { provide: KN_BOTTOM_SHEET_OUTSIDE_CONTEXT, useValue: {
+            ...mergedConfig,
+            isOutsideCreation: true,
+            id,
+          }},
+        ],
+        parent: this.injector,
+      });
+      const portal = new ComponentPortal(componentOrTemplate, null, customInjector);
+      overlayRef.attach<any>(portal);
     }
 
     const bottomSheetRef = new KnBottomSheetRef(overlayRef, id, this);
     this.activeRefs.set(id, bottomSheetRef);
-
-    // Передаём props в компонент
-    if (componentRef.instance) {
-      componentRef.instance.id = id;
-      componentRef.instance.hasHandleIcon = config.hasHandleIcon;
-      componentRef.instance.hasCloseIcon = config.hasCloseIcon;
-      componentRef.instance.data = config.data;
-      componentRef.instance.defaultHeight = config.defaultHeight;
-      componentRef.instance.minHeight = config.minHeight;
-      componentRef.instance.maxHeight = config.maxHeight;
-      componentRef.changeDetectorRef.detectChanges();
-    }
 
     return bottomSheetRef;
   }

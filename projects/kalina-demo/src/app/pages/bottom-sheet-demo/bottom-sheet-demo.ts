@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { KnBottomSheetComponent, KnBottomSheetService } from 'kalina';
+
 import { KnBottomSheetDemoComponet } from './components/bottom-sheet/bottom-sheet.component';
 
 @Component({
@@ -15,7 +16,7 @@ export class BottomSheetDemoPage {
 
   protected openSheet(): void {
     this.open.set(true);
-    this.bottomSheetService.open(KnBottomSheetDemoComponet);
+    this.bottomSheetService.open(KnBottomSheetDemoComponet, {data: 'Outside creation context'});
   }
 }
 

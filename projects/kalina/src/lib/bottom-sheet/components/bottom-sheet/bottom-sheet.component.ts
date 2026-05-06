@@ -4,6 +4,7 @@ import { NgTemplateOutlet } from '@angular/common';
 
 import { KnBottomSheetService } from '../../services/bottom-sheet.service';
 import { KnBottomSheetRef } from '../../common/bottom-sheet-ref';
+import { KN_BOTTOM_SHEET_DEFAULT_CONFIG, KN_BOTTOM_SHEET_OUTSIDE_CONTEXT, KnBottomSheetConfig, KnBottomSheetDefaultConfig } from '../../types';
 
 @Component({
   selector: 'kn-bottom-sheet',
@@ -15,9 +16,11 @@ import { KnBottomSheetRef } from '../../common/bottom-sheet-ref';
 export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   private service = inject(KnBottomSheetService);
   private viewContainerRef = inject(ViewContainerRef);
+  private bottomSheetDefaultConfig = inject(KN_BOTTOM_SHEET_DEFAULT_CONFIG, { optional: true });
+  private bottomSheetOutsideContext = inject(KN_BOTTOM_SHEET_OUTSIDE_CONTEXT);
   
   // Входные параметры
-  @Input() id!: string;
+  @Input() id = window.crypto.randomUUID();
   @Input() hasBackdrop = true;
   @Input() hasHandleIcon = true;
   @Input() hasCloseIcon = true;
@@ -28,7 +31,6 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges, Aft
   @Input() minHeight = 0;
   @Input() maxHeight = window.innerHeight * 0.9;
   @Input() isOpen = false;
-  
   
   // Выходные события
   @Output() heightChange = new EventEmitter<number>();
@@ -52,6 +54,18 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges, Aft
 
   private currentRef: KnBottomSheetRef | null = null;
   private portal!: TemplatePortal<any>;
+
+  get knOutsideCreation(): boolean {
+    return this.bottomSheetOutsideContext?.isOutsideCreation;
+  }
+
+  get knData(): any {
+    return this.data || this.bottomSheetOutsideContext?.data || null;
+  }
+
+  get knId(): string {
+    return this.bottomSheetOutsideContext?.id || this.id;
+  }
 
   ngOnInit(): void {
     // Создаём портал один раз
@@ -83,15 +97,26 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges, Aft
   public open() {
     if (!this.portal) return;
 
-    this.currentRef = this.service.open(this.portal as unknown as TemplateRef<any>, {
-      id: this.id,
+    const config = {
       hasBackdrop: this.hasBackdrop,
       backdropClass: this.backdropClass,
       panelClass: this.panelClass,
       data: this.data,
+      hasHandleIcon: this.hasHandleIcon,
+      hasCloseIcon: this.hasCloseIcon,
       defaultHeight: this.defaultHeight,
       minHeight: this.minHeight,
       maxHeight: this.maxHeight,
+    };
+
+    const mergedConfig: Partial<KnBottomSheetDefaultConfig> & KnBottomSheetConfig = {
+      ...(this.bottomSheetDefaultConfig ?? {}),
+      ...config,
+    };
+
+    this.currentRef = this.service.open(this.portal, {
+      id: this.id,
+      ...mergedConfig,
     });
 
     this.currentRef.afterClosed$.subscribe((result) => {
@@ -103,12 +128,7 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges, Aft
   }
 
   public close(): void {
-    console.log(this.id)
-    if (this.currentRef) {
-      this.currentRef?.close();
-    } else {
-      this.service.close(this.id);
-    }
+    this.service.close(this.knId);
   }
 
   // ==================== DRAG LOGIC ====================
