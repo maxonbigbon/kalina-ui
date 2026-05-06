@@ -28,7 +28,7 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges, Aft
   @Input() panelClass = '';
   @Input() data: any = null;
   @Input() defaultHeight = 0;
-  @Input() minHeight = 0;
+  @Input() minHeight = 100;
   @Input() maxHeight = window.innerHeight * 0.9;
   @Input() isOpen = false;
   
@@ -166,9 +166,8 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges, Aft
 
     // Логика snap + dismiss
     // Быстрый свайп вниз или сильное уменьшение -> закрыть (как onDismiss в референсе)
-    const dismissVelocity = 0.3; // px/ms
-    console.log(this.velocityY, dismissVelocity);
-    if (current < this.minHeight * 1.2 || (this.velocityY > dismissVelocity || !this.hasDragged)) {
+    const dismissVelocity = 0.5; // px/ms
+    if (current < this.minHeight || (this.velocityY > dismissVelocity || !this.hasDragged)) {
       this.close();
       return;
     }
@@ -248,7 +247,7 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges, Aft
   }
 
   private clampHeight(height: number): number {
-    return Math.max(this.minHeight, Math.min(this.maxHeight, height));
+    return Math.min(this.maxHeight, height);
   }
 
   private isTargetInsideContent(target: EventTarget | null): boolean {
