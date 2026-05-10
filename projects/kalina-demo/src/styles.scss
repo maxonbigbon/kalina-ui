@@ -1,2 +1,18 @@
 @use 'kalina-theme';
 @use './styles/table' as *;
+
+@import 'prismjs/themes/prism.css';
+@import 'prismjs/plugins/toolbar/prism-toolbar.css';
+@import 'prismjs/plugins/line-numbers/prism-line-numbers.css';
+
+/* Small defaults for demo pages (Prism blocks) */
+code[class*='language-'],
+pre[class*='language-'] {
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+pre[class*='language-'] {
+  border: 1px solid var(--kn-color-border);
+  background: var(--kn-color-surface);
+}

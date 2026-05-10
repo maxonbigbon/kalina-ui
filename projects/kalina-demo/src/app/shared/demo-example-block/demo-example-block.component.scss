@@ -1,0 +1,105 @@
+.ex {
+  border: 1px solid var(--kn-color-border);
+  background: var(--kn-color-surface);
+  border-radius: var(--kn-radius-lg);
+  overflow: hidden;
+}
+
+.ex__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--kn-space-4);
+  padding: var(--kn-space-4);
+}
+
+.ex__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: var(--kn-font-weight-semibold);
+}
+
+.ex__subtitle {
+  margin: var(--kn-space-1) 0 0;
+  color: var(--kn-color-text-muted);
+  font-size: 0.875rem;
+}
+
+.ex__demo {
+  padding: var(--kn-space-4);
+  display: grid;
+  gap: var(--kn-space-3);
+}
+
+.ex__footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 var(--kn-space-4) var(--kn-space-4);
+}
+
+.ex__code {
+  border-top: 1px solid var(--kn-color-border);
+  background: color-mix(in srgb, var(--kn-color-surface-2) 60%, transparent);
+}
+
+.ex__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--kn-space-3);
+  padding: 0 var(--kn-space-4);
+  border-bottom: 1px solid var(--kn-color-border);
+}
+
+.ex__tab {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--kn-color-text);
+  padding: 10px 0;
+  cursor: pointer;
+  font-size: 0.875rem;
+  border-bottom: 2px solid transparent;
+  opacity: 0.85;
+}
+
+.ex__tab--active {
+  border-bottom-color: var(--kn-color-primary);
+  opacity: 1;
+}
+
+.ex__code-block {
+  display: block;
+  padding: var(--kn-space-4);
+}
+
+.ex__code-block {
+  pre {
+    margin: 0;
+    border-radius: var(--kn-radius-md);
+  }
+}
+
+.ex__toggle {
+  appearance: none;
+  border: 1px solid var(--kn-color-border);
+  background: var(--kn-color-surface-2);
+  color: var(--kn-color-text);
+  border-radius: var(--kn-radius-md);
+  padding: 6px 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ex__toggle-icon {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+
+.ex__toggle-text {
+  font-size: 0.875rem;
+  color: var(--kn-color-text-muted);
+}
+

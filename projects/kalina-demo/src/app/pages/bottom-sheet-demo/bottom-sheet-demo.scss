@@ -3,6 +3,11 @@
   gap: var(--kn-space-4);
 }
 
+.page__examples {
+  display: grid;
+  gap: var(--kn-space-4);
+}
+
 .page__header {
   display: grid;
   gap: var(--kn-space-1);
@@ -33,4 +38,36 @@
 .demo-btn--primary {
   border-color: color-mix(in srgb, var(--kn-color-primary) 35%, var(--kn-color-border));
   background: color-mix(in srgb, var(--kn-color-primary) 12%, var(--kn-color-surface-2));
+}
+
+.sheet-header-demo {
+  padding: var(--kn-space-4) var(--kn-space-4) var(--kn-space-2);
+  border-bottom: 1px solid var(--kn-color-border);
+}
+
+.sheet-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: var(--kn-font-weight-semibold);
+}
+
+.sheet-subtitle {
+  margin: 0;
+  color: var(--kn-color-text-muted);
+  font-size: 0.875rem;
+}
+
+.sheet-body {
+  display: grid;
+  gap: var(--kn-space-3);
+  padding: var(--kn-space-4);
+}
+
+.sheet-footer-demo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--kn-space-2);
+  justify-content: flex-end;
+  padding: var(--kn-space-3) var(--kn-space-4) var(--kn-space-4);
+  border-top: 1px solid var(--kn-color-border);
 }

@@ -17,7 +17,7 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges, Aft
   private service = inject(KnBottomSheetService);
   private viewContainerRef = inject(ViewContainerRef);
   private bottomSheetDefaultConfig = inject(KN_BOTTOM_SHEET_DEFAULT_CONFIG, { optional: true });
-  private bottomSheetOutsideContext = inject(KN_BOTTOM_SHEET_OUTSIDE_CONTEXT);
+  private bottomSheetOutsideContext = inject(KN_BOTTOM_SHEET_OUTSIDE_CONTEXT, { optional: true });
   
   // Входные параметры
   @Input() id = window.crypto.randomUUID();
@@ -56,7 +56,7 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges, Aft
   private portal!: TemplatePortal<any>;
 
   get knOutsideCreation(): boolean {
-    return this.bottomSheetOutsideContext?.isOutsideCreation;
+    return this.bottomSheetOutsideContext?.isOutsideCreation || false;
   }
 
   get knData(): any {
@@ -74,8 +74,9 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges, Aft
 
   ngAfterViewInit(): void {
     // Начальная высота, чтобы первый drag не "прыгал" с 0
-    this.defaultHeight = this.defaultHeight || this.sheetRef.nativeElement.clientHeight;
-    this.applyHeight(this.defaultHeight);
+    if (this.knOutsideCreation) {
+      this.applyDefaultHeight();
+    }
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -96,6 +97,8 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges, Aft
 
   public open() {
     if (!this.portal) return;
+
+    this.applyDefaultHeight();
 
     const config = {
       hasBackdrop: this.hasBackdrop,
@@ -239,6 +242,11 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges, Aft
     };
 
     requestAnimationFrame(animate);
+  }
+
+  private applyDefaultHeight() {
+    this.defaultHeight = this.defaultHeight || this.sheetRef.nativeElement.clientHeight;
+    this.applyHeight(this.defaultHeight);
   }
 
   private applyHeight(height: number) {
