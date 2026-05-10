@@ -161,13 +161,17 @@ export class KnBottomSheetComponent implements OnInit, OnDestroy, OnChanges, Aft
     this.isDragging = false;
     this.detachGlobalDragListeners();
 
+    // Click/tap without actual dragging should not trigger snap/dismiss.
+    // `hasDragged` becomes true only after movement threshold in `handleMove`.
+    if (!this.hasDragged) return;
+
     const current = this.currentHeight();
     const max = this.maxHeight;
 
     // Логика snap + dismiss
     // Быстрый свайп вниз или сильное уменьшение -> закрыть (как onDismiss в референсе)
     const dismissVelocity = 0.5; // px/ms
-    if (current < this.minHeight || (this.velocityY > dismissVelocity || !this.hasDragged)) {
+    if (current < this.minHeight || this.velocityY > dismissVelocity) {
       this.close();
       return;
     }

@@ -1,6 +1,7 @@
 import { ComponentType, Overlay } from "@angular/cdk/overlay";
 import { Injector, inject, Injectable } from "@angular/core";
 import { ComponentPortal, TemplatePortal } from "@angular/cdk/portal";
+import { Subscription } from "rxjs";
 
 import { KN_BOTTOM_SHEET_DEFAULT_CONFIG, KN_BOTTOM_SHEET_OUTSIDE_CONTEXT, KnBottomSheetConfig, KnBottomSheetDefaultConfig } from "../types";
 import { KnBottomSheetRef } from "../common/bottom-sheet-ref";
@@ -55,6 +56,21 @@ export class KnBottomSheetService {
 
     const bottomSheetRef = new KnBottomSheetRef(overlayRef, id, this);
     this.activeRefs.set(id, bottomSheetRef);
+
+    // Закрытие по клику на backdrop
+    let backdropSub: Subscription | null = null;
+    if (mergedConfig.hasBackdrop) {
+      backdropSub = overlayRef.backdropClick().subscribe(() => {
+        // Закрываем инстанс (dispose + afterClosed + cleanup)
+        bottomSheetRef.close();
+      });
+
+      // Гарантированно отписываемся при уничтожении overlay
+      overlayRef.detachments().subscribe(() => {
+        backdropSub?.unsubscribe();
+        backdropSub = null;
+      });
+    }
 
     return bottomSheetRef;
   }
