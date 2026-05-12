@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
-import { KnBottomSheetComponent, KnBottomSheetService } from "kalina";
+import { KnBottomSheetService } from "kalina";
 
 import { BottomSheetViaServiceComponent } from "./bottom-sheet-via-service.component";
 
 @Component({
   selector: 'kn-bottom-sheet-via-service-container',
-  imports: [KnBottomSheetComponent],
+  imports: [],
   template: `
       <button type="button" class="demo-btn" (click)="openSheet()">Open</button>
     `,

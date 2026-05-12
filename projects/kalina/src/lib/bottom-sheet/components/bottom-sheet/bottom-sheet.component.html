@@ -1,50 +1,18 @@
-
 @if(knOutsideCreation) {
-  <ng-container [ngTemplateOutlet]="contentTemplate"></ng-container>
+    <ng-container [ngTemplateOutlet]="contentTemplate"></ng-container>
 }
 
 <ng-template #contentTemplate>
-  <div class="bottom-sheet" 
-      #sheet
-      (touchstart)="onTouchStart($event)"
-      (mousedown)="onMouseDown($event)"
-      >
-
-    <!-- Top bar: handle + close (independent) -->
-    <div class="sheet-topbar">
-      @if (hasHandleIcon) {
-        <div class="sheet-handle" (mousedown)="onMouseDown($event)">
-          <div class="handle-bar"></div>
-        </div>
-      }
-
-      @if (hasCloseIcon) {
-        <button
-          type="button"
-          class="sheet-close"
-          aria-label="Close"
-          (click)="close()"
-          (mousedown)="$event.stopPropagation(); $event.preventDefault()"
-          (touchstart)="$event.stopPropagation(); $event.preventDefault()"
-        >
-          <span aria-hidden="true">×</span>
-        </button>
-      }
-    </div>
-
-    <!-- Header -->
-    <div class="sheet-header">
-      <ng-content select="[header]"></ng-content>
-    </div>
-
-    <!-- Content -->
-    <div class="sheet-content" #content>
-      <ng-content></ng-content>
-    </div>
-
-    <!-- Footer -->
-    <div class="sheet-footer">
-      <ng-content select="[footer]"></ng-content>
-    </div>
-  </div>
+    <kn-bottom-sheet-core
+    [hasHandleIcon]="hasHandleIcon"
+    [hasCloseIcon]="hasCloseIcon"
+    [defaultHeight]="defaultHeight"
+    [minHeight]="minHeight"
+    [maxHeight]="maxHeight"
+    (closed)="close()"
+    >
+        <ng-content select="[header]" slot="header"></ng-content>
+        <ng-content slot="content"></ng-content>
+        <ng-content select="[footer]" slot="footer"></ng-content>
+    </kn-bottom-sheet-core>
 </ng-template>

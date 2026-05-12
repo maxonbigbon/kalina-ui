@@ -1,0 +1,28 @@
+<button type="button" class="demo-btn" (click)="openSheet()">Open</button>
+
+<kn-bottom-sheet #sheet [data]="sheetData">
+  <div header class="sheet-header-demo">
+    <h2 class="sheet-title">Title</h2>
+    <p class="sheet-subtitle">Subtitle</p>
+  </div>
+
+  <div class="sheet-body sheet-body--text">
+    <p>
+      Today is {{ sheet.knData }}!
+    </p>
+    <p>
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+      magna aliqua.
+      Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis
+      aute irure
+      dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+      cupidatat
+      non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+    </p>
+  </div>
+
+  <div footer class="sheet-footer-demo">
+    <button type="button" class="demo-btn">Confirm</button>
+    <button type="button" class="demo-btn demo-btn--primary">Reject</button>
+  </div>
+</kn-bottom-sheet>
