@@ -1,0 +1,25 @@
+.page {
+  display: grid;
+  gap: var(--kn-space-4);
+}
+
+.page__examples {
+  display: grid;
+  gap: var(--kn-space-4);
+}
+
+.page__header {
+  display: grid;
+  gap: var(--kn-space-1);
+}
+
+.page__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: var(--kn-font-weight-semibold);
+}
+
+.page__subtitle {
+  margin: 0;
+  color: var(--kn-color-text-muted);
+}

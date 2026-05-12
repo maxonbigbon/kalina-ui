@@ -16,7 +16,11 @@ import 'prismjs/components/prism-markup';
 
 @Component({
   selector: 'kn-code-highlight',
-  template: `<pre class="language-{{ language }}"><code #codeEl>{{ code }}</code></pre>`,
+  template: `
+    <pre [class]="'language-' + language">
+      <code #codeEl [class]="'language-' + language" [textContent]="code"></code>
+    </pre>
+  `,
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -27,7 +31,7 @@ export class CodeHighlightComponent implements AfterViewInit, OnChanges {
   @ViewChild('codeEl', { static: true }) private codeEl!: ElementRef<HTMLElement>;
 
   ngAfterViewInit(): void {
-    this.highlight();
+    this.highlightAsync();
   }
 
   ngOnChanges(): void {
